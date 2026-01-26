@@ -153,13 +153,14 @@
     }
 
 .topInfo{
-  top: calc(12px + env(safe-area-inset-top));
+  top: calc(12px + env(safe-area-inset-top) + var(--vv-top, 0px));
   right: calc(12px + env(safe-area-inset-right));
 }
 
+
 .filterWrap{
   left: calc(12px + env(safe-area-inset-left));
-  bottom: calc(12px + env(safe-area-inset-bottom));
+  bottom: calc(12px + env(safe-area-inset-bottom) + var(--vv-bottom, 0px));
 }
 
     .btnOrange{
@@ -606,33 +607,40 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
     const y = (sy - ty) / scale;
     return {x,y};
   }
+  
+  function clientToStage(clientX, clientY){
+  const r = mapStage.getBoundingClientRect();
+  return { x: clientX - r.left, y: clientY - r.top };
+}
+
 
 mapStage.addEventListener('pointerdown', (e)=>{
   mapStage.setPointerCapture(e.pointerId);
-  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+  const p = clientToStage(e.clientX, e.clientY);
+  pointers.set(e.pointerId, p);
 
   if(pointers.size===1){
     isPanning = true;
-    panStart = {x:e.clientX, y:e.clientY, tx0:tx, ty0:ty};
-} else if(pointers.size===2){
-  isPanning = false;
-  const pts = Array.from(pointers.values());
-  pinch = {
-    dist0: distance(pts[0], pts[1]),
-    scale0: scale
-  };
-}
-
+    panStart = {x:p.x, y:p.y, tx0:tx, ty0:ty};
+  } else if(pointers.size===2){
+    isPanning = false;
+    const pts = Array.from(pointers.values());
+    pinch = { dist0: distance(pts[0], pts[1]), scale0: scale };
+  }
 });
+
 
 
 mapStage.addEventListener('pointermove', (e)=>{
   if(!pointers.has(e.pointerId)) return;
-  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+  const p = clientToStage(e.clientX, e.clientY);
+  pointers.set(e.pointerId, p);
 
   if(pointers.size===1 && isPanning && !pinch){
-    const dx = e.clientX - panStart.x;
-    const dy = e.clientY - panStart.y;
+    const dx = p.x - panStart.x;
+    const dy = p.y - panStart.y;
     tx = panStart.tx0 + dx;
     ty = panStart.ty0 + dy;
     applyTransform();
@@ -695,8 +703,8 @@ mapStage.addEventListener('pointercancel', (e)=>{
     const delta = -e.deltaY;
     const factor = Math.exp(delta * zoomIntensity);
 
-    const mouse = {x:e.clientX, y:e.clientY};
-    const world = screenToWorld(mouse.x, mouse.y);
+const mouse = clientToStage(e.clientX, e.clientY);
+const world = screenToWorld(mouse.x, mouse.y);
 
     const newScale = Math.max(0.35, Math.min(6.0, scale * factor));
     scale = newScale;
@@ -859,6 +867,30 @@ mapStage.addEventListener('pointercancel', (e)=>{
   }
   setInterval(tick, 1000);
   tick();
+  
+  
+  function updateVV(){
+  const vv = window.visualViewport;
+  if(!vv){
+    document.documentElement.style.setProperty('--vv-bottom', '0px');
+    document.documentElement.style.setProperty('--vv-top', '0px');
+    return;
+  }
+
+  const vvBottom = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop));
+  const vvTop = Math.max(0, vv.offsetTop);
+
+  document.documentElement.style.setProperty('--vv-bottom', vvBottom + 'px');
+  document.documentElement.style.setProperty('--vv-top', vvTop + 'px');
+}
+
+updateVV();
+window.addEventListener('resize', updateVV);
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', updateVV);
+  window.visualViewport.addEventListener('scroll', updateVV);
+}
+
 
   // ---------- Boot ----------
   renderPins();
