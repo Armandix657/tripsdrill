@@ -28,22 +28,23 @@
 
 
     /* App shell */
-    .app{
-      height:100vh;
-      height:100dvh;
-      display:flex;
-      flex-direction:column;
-    }
+.app{
+  height: var(--appH, 100dvh);
+  display:flex;
+  flex-direction:column;
+}
 
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding: 10px 12px calc(10px + env(safe-area-inset-top));
-      border-bottom: var(--border);
-      background:#fff;
-    }
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding: calc(10px + env(safe-area-inset-top)) 12px 10px 12px;
+  border-bottom: var(--border);
+  background:#fff;
+}
+
     .title{
       font-weight:800;
       font-size:16px;
@@ -160,7 +161,7 @@
 
 .filterWrap{
   left: calc(12px + env(safe-area-inset-left));
-  bottom: calc(12px + env(safe-area-inset-bottom) + var(--vv-bottom, 0px));
+  bottom: calc(12px + env(safe-area-inset-bottom) + var(--vv-bottom, 0px) + 12px);
 }
 
     .btnOrange{
@@ -366,7 +367,7 @@
     </div>
   </div>
 
-  <div class="app safeBottom">
+<div class="app">
     <div class="topbar">
       <div class="title" id="pageTitle">interaktive-karte</div>
       <div class="tabs">
@@ -869,8 +870,14 @@ const world = screenToWorld(mouse.x, mouse.y);
   tick();
   
   
-  function updateVV(){
+function updateViewportVars(){
   const vv = window.visualViewport;
+
+  // Altezza visibile reale (fix tagli su iPhone + desktop)
+  const h = vv ? vv.height : window.innerHeight;
+  document.documentElement.style.setProperty('--appH', h + 'px');
+
+  // Safe overlays (Safari toolbars ecc.)
   if(!vv){
     document.documentElement.style.setProperty('--vv-bottom', '0px');
     document.documentElement.style.setProperty('--vv-top', '0px');
@@ -884,12 +891,13 @@ const world = screenToWorld(mouse.x, mouse.y);
   document.documentElement.style.setProperty('--vv-top', vvTop + 'px');
 }
 
-updateVV();
-window.addEventListener('resize', updateVV);
+updateViewportVars();
+window.addEventListener('resize', updateViewportVars);
 if(window.visualViewport){
-  window.visualViewport.addEventListener('resize', updateVV);
-  window.visualViewport.addEventListener('scroll', updateVV);
+  window.visualViewport.addEventListener('resize', updateViewportVars);
+  window.visualViewport.addEventListener('scroll', updateViewportVars);
 }
+
 
 
   // ---------- Boot ----------
