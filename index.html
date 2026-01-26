@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ff6f00" />
+  <title>Tripsdrill – Demo</title>
+
+  <style>
+    :root{
+      --orange:#ff6f00;
+      --bg:#ffffff;
+      --text:#1b1b1b;
+      --panel: rgba(255,255,255,0.92);
+      --shadow: 0 6px 18px rgba(0,0,0,0.18);
+      --border: 1px solid rgba(0,0,0,0.08);
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow:hidden;
+    }
+
+    /* App shell */
+    .app{
+      height:100vh;
+      height:100dvh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 10px 12px calc(10px + env(safe-area-inset-top));
+      border-bottom: var(--border);
+      background:#fff;
+    }
+    .title{
+      font-weight:800;
+      font-size:16px;
+    }
+
+    .tabs{
+      display:flex;
+      gap:8px;
+    }
+    .tabbtn{
+      border: var(--border);
+      background:#fff;
+      padding:8px 10px;
+      border-radius:12px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .tabbtn.active{
+      background: var(--orange);
+      color:#fff;
+      border-color: transparent;
+    }
+
+    .content{
+      position:relative;
+      flex:1;
+      overflow:hidden;
+    }
+
+    /* Splash */
+    .splash{
+      position:fixed;
+      inset:0;
+      background:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding: 28px;
+    }
+    .splashCard{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:14px;
+      text-align:center;
+    }
+    .splash img{
+      height:140px;
+      max-width: 80vw;
+      object-fit:contain;
+    }
+    .spinner{
+      width:26px;height:26px;
+      border-radius:50%;
+      border:3px solid rgba(0,0,0,0.15);
+      border-top-color: var(--orange);
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin{ to{ transform: rotate(360deg); } }
+
+    /* Map view */
+    .mapView{
+      position:absolute;
+      inset:0;
+      display:none;
+    }
+    .mapView.active{ display:block; }
+
+    .mapStage{
+      position:absolute;
+      inset:0;
+      overflow:hidden;
+      touch-action:none; /* important for pinch/pan */
+      background:#f5f5f5;
+    }
+
+    /* this element gets transformed */
+    .mapInner{
+      position:absolute;
+      left:0; top:0;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+    .mapImage{
+      display:block;
+      width:2048px;
+      height:1390px;
+      user-select:none;
+      -webkit-user-drag:none;
+      pointer-events:none; /* clicks go to pins */
+    }
+
+    /* Panels */
+    .panel{
+      position:absolute;
+      background: var(--panel);
+      border: var(--border);
+      border-radius:12px;
+      box-shadow: var(--shadow);
+      padding:10px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .topInfo{
+      top: 12px;
+      right: 12px;
+      min-width: 190px;
+      font-size:12px;
+    }
+    .topInfo .strong{ font-weight:800; }
+
+    .filterWrap{
+      left: 12px;
+      bottom: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:flex-start;
+    }
+
+    .btnOrange{
+      background: var(--orange);
+      color:#fff;
+      border:none;
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:800;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btnOrange.small{
+      padding:8px 10px;
+      border-radius:12px;
+      font-weight:800;
+      font-size:13px;
+    }
+
+    .filterPanel{
+      width: 210px;
+      font-size:13px;
+    }
+    .filterTitle{
+      font-weight:900;
+      font-size:13px;
+      margin-bottom:6px;
+    }
+    .checkrow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:6px 0;
+    }
+    .checkbox{
+      width:20px;height:20px;
+      border-radius:6px;
+      border:2px solid var(--orange);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
+      cursor:pointer;
+      background:#fff;
+    }
+    .checkbox.checked{
+      background: var(--orange);
+      border-color: var(--orange);
+    }
+    .checkbox.checked::after{
+      content:"✓";
+      color:#fff;
+      font-weight:900;
+      font-size:14px;
+      line-height:1;
+    }
+
+    /* Pins */
+    .pinHit{
+      position:absolute;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      /* Hit area is big, visible pin is centered */
+    }
+    .pin{
+      width:26px;height:26px;
+      border-radius:50%;
+      border:2px solid #fff;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size:12px;
+      user-select:none;
+    }
+    .pin.attr{ background:#ffd54f; color:#1565c0; }
+    .pin.gastro{ background:#ff8f00; color:#ffeb3b; }
+
+    /* Events view */
+    .eventsView{
+      position:absolute;
+      inset:0;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 14px;
+      display:none;
+      background:#fff;
+    }
+    .eventsView.active{ display:block; }
+
+    .intro{
+      border: var(--border);
+      border-radius:12px;
+      padding:14px;
+      background:#fff;
+    }
+    .intro h2{
+      margin:0 0 8px 0;
+      font-size:18px;
+      font-weight:900;
+    }
+    .intro p{
+      margin:0;
+      white-space: pre-line;
+      line-height:1.35;
+    }
+
+    .card{
+      margin-top:12px;
+      border: var(--border);
+      border-radius:12px;
+      overflow:hidden;
+      background:#fff;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    }
+    .card img{
+      width:100%;
+      height:170px;
+      object-fit:cover;
+      display:block;
+    }
+    .cardBody{
+      padding:12px;
+    }
+    .cardTitle{
+      font-weight:900;
+      font-size:16px;
+      margin:0;
+    }
+    .cardDate{
+      margin:4px 0 0 0;
+      font-weight:800;
+    }
+    .cardDesc{
+      margin:8px 0 10px 0;
+      line-height:1.35;
+    }
+
+    /* Modal */
+    .modalBack{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 16px;
+      z-index:9998;
+    }
+    .modalBack.show{ display:flex; }
+    .modal{
+      width:min(420px, 100%);
+      background:#fff;
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
+    .modalHeader{
+      padding:12px 14px;
+      font-weight:900;
+      border-bottom: var(--border);
+    }
+    .modalImg{
+      width:100%;
+      height:170px;
+      object-fit:cover;
+      display:block;
+      background:#eee;
+    }
+    .modalBody{
+      padding:14px;
+      line-height:1.35;
+    }
+    .modalActions{
+      padding: 0 14px 14px 14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .btnLink{
+      text-decoration:none;
+    }
+
+    /* Make it feel more app-like on iPhone */
+    .safeBottom{
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  </style>
+</head>
+<body>
+  <!-- Splash -->
+  <div id="splash" class="splash">
+    <div class="splashCard">
+      <img id="splashLogo" alt="Tripsdrill Logo" />
+      <div style="font-weight:800;">App Demo wird geladen…</div>
+      <div class="spinner" aria-label="loading"></div>
+    </div>
+  </div>
+
+  <div class="app safeBottom">
+    <div class="topbar">
+      <div class="title" id="pageTitle">interaktive-karte</div>
+      <div class="tabs">
+        <button class="tabbtn active" id="tabMap">interaktive-karte</button>
+        <button class="tabbtn" id="tabEvents">Events</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- MAP VIEW -->
+      <div class="mapView active" id="mapView">
+        <div class="mapStage" id="mapStage">
+          <div class="mapInner" id="mapInner">
+            <img class="mapImage" id="mapImg" alt="Parkplan" />
+            <!-- Pins inserted here -->
+          </div>
+        </div>
+
+        <!-- Top info -->
+        <div class="panel topInfo" id="topInfo">
+          <div id="nowText" style="margin-bottom:8px; font-weight:800;"></div>
+          <div class="strong">Geschlossene Attraktionen:</div>
+          <div style="margin-top:2px;">• Volldampf</div>
+        </div>
+
+        <!-- Filter -->
+        <div class="filterWrap panel" id="filterWrap" style="background:transparent; border:none; box-shadow:none; padding:0;">
+          <button class="btnOrange small" id="filterToggle">
+            <span style="font-size:16px;">⛭</span> Filter
+          </button>
+
+          <div class="panel filterPanel" id="filterPanel">
+            <div class="filterTitle">Filter</div>
+
+            <div class="checkrow">
+              <div class="checkbox checked" id="chkAttr" role="checkbox" aria-checked="true"></div>
+              <div>Attraktionen</div>
+            </div>
+
+            <div class="checkrow">
+              <div class="checkbox checked" id="chkGastro" role="checkbox" aria-checked="true"></div>
+              <div>Gastronomie</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EVENTS VIEW -->
+      <div class="eventsView" id="eventsView">
+        <div class="intro">
+          <h2>Events im Erlebnispark 2026</h2>
+          <p>Der Erlebnispark Tripsdrill ist bekannt für seine abwechslungsreichen Veranstaltungen
+Ob die Sommer-Gaudi am Samstag, die Schaurigen Altweibernächte oder der Altweibersommer - im Erlebnispark Tripsdrill finden viele tolle Events statt. Übrigens: Ausgewählte Veranstaltungen sind im Jahres-Pass inklusive.
+
+Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jahr 2025 (kurzfristige Programmänderungen vorbehalten).</p>
+        </div>
+
+        <div id="eventsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modalBack" id="modalBack" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modalHeader" id="modalTitle"></div>
+      <img class="modalImg" id="modalImg" alt="" />
+      <div class="modalBody" id="modalBody"></div>
+      <div class="modalActions">
+        <a class="btnLink" id="modalLink" target="_blank" rel="noopener">
+          <button class="btnOrange">Auf der Website öffnen</button>
+        </a>
+        <button class="btnOrange" id="modalClose">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ---------- Helpers ----------
+  function weserv(url){
+    // remove scheme and feed to weserv
+    const u = url.replace(/^https?:\/\//,'');
+    return 'https://images.weserv.nl/?url=' + encodeURIComponent(u);
+  }
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function formatNow(d){
+    return `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  }
+
+  // ---------- Data ----------
+  const mapBaseW = 2048;
+  const mapBaseH = 1390;
+
+  const MAP_URL = weserv('https://tripsdrill.de/fileadmin/Erlebnispark/Parkplan_Erlebnispark/2024_Website_Parkplan_mit_Legende.jpg');
+  const LOGO_URL = weserv('https://tripsdrill.de/fileadmin/Erlebnispark/Logos/_Tripsdrill_Claimgruen_frei.png');
+
+  const attractions = [
+    {
+      kind:'attr',
+      id:'karacho',
+      number:90,
+      title:'Karacho',
+      x:805, y:165,
+      hitRadius:60,
+      description:'Wie beim Start einer Rakete – mit unserer Katapult-Achterbahn in nur 1,6 Sekunden auf 100 km/h.',
+      pageUrl:'https://tripsdrill.de/de/erlebnispark/attraktion/karacho',
+      photoUrl: weserv('https://tripsdrill.de/fileadmin/_processed_/4/6/csm_Achterbahnen_Karacho_Sonne_d6ee8dc461.jpg')
+    },
+    {
+      kind:'attr',
+      id:'mammut',
+      number:101,
+      title:'Mammut',
+      x:970, y:120,
+      hitRadius:60,
+      description:'Brettern Sie mit über 80 Sachen mit unserer Holzachterbahn durch die riesige Sägemühle.',
+      pageUrl:'https://tripsdrill.de/de/erlebnispark/attraktion/mammut',
+      photoUrl: weserv('https://tripsdrill.de/fileadmin/_processed_/3/1/csm_Achterbahnen_Mammut_Zug_rechts_27efaf9660.jpg')
+    },
+    {
+      kind:'attr',
+      id:'halsueberkopf',
+      number:21,
+      title:'Hals-Über-Kopf',
+      x:125, y:535,
+      hitRadius:60,
+      description:'„Hals-über-Kopf“ in ein waghalsiges Achterbahn-Abenteuer.',
+      pageUrl:'https://tripsdrill.de/de/erlebnispark/attraktion/hals-ueber-kopf',
+      photoUrl: weserv('https://tripsdrill.de/fileadmin/_processed_/d/2/csm_Achterbahnen_Hals-ueber-Kopf_Ueberschlag_2ee1be948b.webp')
+    }
+  ];
+
+  const gastro = [
+    {
+      kind:'gastro',
+      id:'altweibermuehle',
+      number:37,
+      title:'Gasthaus zur Altweibermühle',
+      x:310, y:293,
+      hitRadius:60,
+      description:'Vom Frühstück, über Mittagessen, Kaffee und Kuchen, Eisspezialitäten sowie Abendessen lässt das Angebot keine Wünsche offen.',
+      pageUrl:'https://tripsdrill.de/de/erlebnispark/gastro/gasthaus-zur-altweibermuehle',
+      photoUrl: weserv('https://tripsdrill.de/fileadmin/_processed_/5/8/csm_Gastronomie_EP_AWM_3b4c0a2ba8.webp')
+    }
+  ];
+
+  const events = [
+    {
+      title:'3D-Malerei',
+      dateRange:'28. März - 07. April 2026',
+      description:'3D Streetart-Künstlerin Marion Ruthardt zu Gast in Tripsdrill.',
+      pageUrl:'https://tripsdrill.de/de/erlebnispark/veranstaltung/3d-malerei',
+      photoUrl: weserv('https://tripsdrill.de/fileadmin/_processed_/0/4/csm_EP_Veranstaltungen_3D-Malerei_a8aa394785.webp')
+    },
+    {
+      title:'Bunte Ostereierei',
+      dateRange:'28. März - 12. April 2026',
+      description:'Neben farbenfroher Osterdekoration wartet wieder das große Ostereier-Suchspiel auf Sie.',
+      pageUrl:'https://tripsdrill.de/de/erlebnispark/veranstaltung/ostereierei',
+      photoUrl: weserv('https://tripsdrill.de/fileadmin/_processed_/5/4/csm_EP_Veranstaltungen_Ostereierei_4e15608d5e.webp')
+    }
+  ];
+
+  // ---------- Tabs ----------
+  const tabMap = document.getElementById('tabMap');
+  const tabEvents = document.getElementById('tabEvents');
+  const mapView = document.getElementById('mapView');
+  const eventsView = document.getElementById('eventsView');
+  const pageTitle = document.getElementById('pageTitle');
+
+  function showTab(which){
+    if(which==='map'){
+      tabMap.classList.add('active'); tabEvents.classList.remove('active');
+      mapView.classList.add('active'); eventsView.classList.remove('active');
+      pageTitle.textContent = 'interaktive-karte';
+    }else{
+      tabEvents.classList.add('active'); tabMap.classList.remove('active');
+      eventsView.classList.add('active'); mapView.classList.remove('active');
+      pageTitle.textContent = 'Events';
+    }
+  }
+  tabMap.addEventListener('click', ()=>showTab('map'));
+  tabEvents.addEventListener('click', ()=>showTab('events'));
+
+  // ---------- Splash ----------
+  const splash = document.getElementById('splash');
+  const splashLogo = document.getElementById('splashLogo');
+  splashLogo.src = LOGO_URL;
+
+  // ---------- Map init ----------
+  const mapImg = document.getElementById('mapImg');
+  mapImg.src = MAP_URL;
+
+  const mapStage = document.getElementById('mapStage');
+  const mapInner = document.getElementById('mapInner');
+
+  // Transform state
+  let scale = 0.55;         // starting zoom
+  let tx = 20, ty = 20;     // starting offset
+  let isPanning = false;
+  let panStart = {x:0,y:0, tx0:0, ty0:0};
+
+  // Pinch state
+  let pinch = null; // {dist0, scale0, mid0:{x,y}}
+
+  function applyTransform(){
+    mapInner.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+  }
+  applyTransform();
+
+  // Keep map centered-ish on load
+  function fitInitial(){
+    // simple heuristic based on viewport
+    const vw = mapStage.clientWidth;
+    const vh = mapStage.clientHeight;
+    const s = Math.min(vw / mapBaseW, vh / mapBaseH);
+    scale = Math.max(0.35, Math.min(0.85, s));
+    tx = (vw - mapBaseW * scale) / 2;
+    ty = (vh - mapBaseH * scale) / 2;
+    applyTransform();
+  }
+  window.addEventListener('resize', fitInitial);
+
+  // Pointer helpers
+  const pointers = new Map();
+
+  function distance(a,b){
+    const dx = a.x-b.x, dy = a.y-b.y;
+    return Math.hypot(dx,dy);
+  }
+  function midpoint(a,b){
+    return {x:(a.x+b.x)/2, y:(a.y+b.y)/2};
+  }
+
+  function screenToWorld(sx, sy){
+    // world coords in map pixels (0..2048,0..1390)
+    const x = (sx - tx) / scale;
+    const y = (sy - ty) / scale;
+    return {x,y};
+  }
+
+  mapStage.addEventListener('pointerdown', (e)=>{
+    mapStage.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+    if(pointers.size===1){
+      isPanning = true;
+      panStart = {x:e.clientX, y:e.clientY, tx0:tx, ty0:ty};
+    }else if(pointers.size===2){
+      // start pinch
+      const pts = Array.from(pointers.values());
+      pinch = {
+        dist0: distance(pts[0], pts[1]),
+        scale0: scale,
+        mid0: midpoint(pts[0], pts[1])
+      };
+    }
+  });
+
+  mapStage.addEventListener('pointermove', (e)=>{
+    if(!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+    if(pointers.size===1 && isPanning && !pinch){
+      const dx = e.clientX - panStart.x;
+      const dy = e.clientY - panStart.y;
+      tx = panStart.tx0 + dx;
+      ty = panStart.ty0 + dy;
+      applyTransform();
+    }
+
+    if(pointers.size===2 && pinch){
+      const pts = Array.from(pointers.values());
+      const d = distance(pts[0], pts[1]);
+      const mid = midpoint(pts[0], pts[1]);
+      const factor = d / pinch.dist0;
+
+      const newScale = Math.max(0.35, Math.min(6.0, pinch.scale0 * factor));
+
+      // Zoom around midpoint: keep world point under midpoint stable
+      const before = screenToWorld(pinch.mid0.x, pinch.mid0.y);
+      scale = newScale;
+      const afterTx = mid.x - before.x * scale;
+      const afterTy = mid.y - before.y * scale;
+      tx = afterTx;
+      ty = afterTy;
+
+      applyTransform();
+    }
+  });
+
+  mapStage.addEventListener('pointerup', (e)=>{
+    pointers.delete(e.pointerId);
+    if(pointers.size<2) pinch = null;
+    if(pointers.size===0) isPanning = false;
+  });
+  mapStage.addEventListener('pointercancel', (e)=>{
+    pointers.delete(e.pointerId);
+    if(pointers.size<2) pinch = null;
+    if(pointers.size===0) isPanning = false;
+  });
+
+  // Wheel zoom (desktop)
+  mapStage.addEventListener('wheel', (e)=>{
+    e.preventDefault();
+    const zoomIntensity = 0.0015;
+    const delta = -e.deltaY;
+    const factor = Math.exp(delta * zoomIntensity);
+
+    const mouse = {x:e.clientX, y:e.clientY};
+    const world = screenToWorld(mouse.x, mouse.y);
+
+    const newScale = Math.max(0.35, Math.min(6.0, scale * factor));
+    scale = newScale;
+
+    tx = mouse.x - world.x * scale;
+    ty = mouse.y - world.y * scale;
+
+    applyTransform();
+  }, {passive:false});
+
+  // ---------- Pins rendering + filter ----------
+  let showAttr = true;
+  let showGastro = true;
+
+  function renderPins(){
+    // remove existing
+    mapInner.querySelectorAll('.pinHit').forEach(n=>n.remove());
+
+    const all = [];
+    if(showAttr) all.push(...attractions);
+    if(showGastro) all.push(...gastro);
+
+    for(const p of all){
+      const hit = document.createElement('div');
+      hit.className = 'pinHit';
+      const r = p.hitRadius;
+      hit.style.width = (r*2)+'px';
+      hit.style.height = (r*2)+'px';
+      hit.style.left = (p.x - r) + 'px';
+      hit.style.top  = (p.y - r) + 'px';
+
+      const pin = document.createElement('div');
+      pin.className = 'pin ' + (p.kind==='gastro' ? 'gastro' : 'attr');
+      pin.textContent = p.number;
+
+      hit.appendChild(pin);
+      hit.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        openModal(p);
+      });
+
+      mapInner.appendChild(hit);
+    }
+  }
+
+  // Custom checkbox UI
+  const chkAttr = document.getElementById('chkAttr');
+  const chkGastro = document.getElementById('chkGastro');
+
+  function setCheck(el, val){
+    el.classList.toggle('checked', !!val);
+    el.setAttribute('aria-checked', String(!!val));
+  }
+
+  chkAttr.addEventListener('click', ()=>{
+    showAttr = !showAttr;
+    setCheck(chkAttr, showAttr);
+    renderPins();
+  });
+
+  chkGastro.addEventListener('click', ()=>{
+    showGastro = !showGastro;
+    setCheck(chkGastro, showGastro);
+    renderPins();
+  });
+
+  // Filter collapse
+  const filterToggle = document.getElementById('filterToggle');
+  const filterPanel = document.getElementById('filterPanel');
+  let filterOpen = true;
+
+  filterToggle.addEventListener('click', ()=>{
+    filterOpen = !filterOpen;
+    filterPanel.style.display = filterOpen ? 'block' : 'none';
+  });
+
+  // ---------- Modal ----------
+  const modalBack = document.getElementById('modalBack');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalImg = document.getElementById('modalImg');
+  const modalBody = document.getElementById('modalBody');
+  const modalLink = document.getElementById('modalLink');
+  const modalClose = document.getElementById('modalClose');
+
+  function openModal(item){
+    modalTitle.textContent = `${item.number} – ${item.title}`;
+    modalImg.src = item.photoUrl;
+    modalImg.alt = item.title;
+    modalBody.textContent = item.description;
+    modalLink.href = item.pageUrl;
+
+    modalBack.classList.add('show');
+    modalBack.setAttribute('aria-hidden','false');
+  }
+
+  function closeModal(){
+    modalBack.classList.remove('show');
+    modalBack.setAttribute('aria-hidden','true');
+  }
+
+  modalClose.addEventListener('click', closeModal);
+  modalBack.addEventListener('click', (e)=>{
+    if(e.target === modalBack) closeModal();
+  });
+  window.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape') closeModal();
+  });
+
+  // ---------- Events render ----------
+  const eventsList = document.getElementById('eventsList');
+
+  function renderEvents(){
+    eventsList.innerHTML = '';
+    for(const ev of events){
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const img = document.createElement('img');
+      img.src = ev.photoUrl;
+      img.alt = ev.title;
+
+      const body = document.createElement('div');
+      body.className = 'cardBody';
+
+      const h = document.createElement('p');
+      h.className = 'cardTitle';
+      h.textContent = ev.title;
+
+      const date = document.createElement('p');
+      date.className = 'cardDate';
+      date.textContent = ev.dateRange;
+
+      const desc = document.createElement('p');
+      desc.className = 'cardDesc';
+      desc.textContent = ev.description;
+
+      const btn = document.createElement('a');
+      btn.href = ev.pageUrl;
+      btn.target = '_blank';
+      btn.rel = 'noopener';
+      btn.className = 'btnLink';
+      btn.innerHTML = `<button class="btnOrange">Mehr Infos</button>`;
+
+      body.appendChild(h);
+      body.appendChild(date);
+      body.appendChild(desc);
+      body.appendChild(btn);
+
+      card.appendChild(img);
+      card.appendChild(body);
+
+      eventsList.appendChild(card);
+    }
+  }
+
+  // ---------- Top info clock ----------
+  const nowText = document.getElementById('nowText');
+  function tick(){
+    nowText.textContent = formatNow(new Date());
+  }
+  setInterval(tick, 1000);
+  tick();
+
+  // ---------- Boot ----------
+  renderPins();
+  renderEvents();
+
+  // splash hide after 5s
+  setTimeout(()=>{
+    splash.style.display='none';
+    fitInitial();
+  }, 5000);
+</script>
+</body>
+</html>
