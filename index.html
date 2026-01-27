@@ -161,19 +161,34 @@
 
 
 
+
 .filterWrap{
   position: fixed;
   left: calc(12px + env(safe-area-inset-left));
   bottom: calc(12px + env(safe-area-inset-bottom));
-  z-index: 50;
+  z-index: 60;
 }
 
 
-.filterPanel{
+.filterWrap{ 
+  display: inline-block;
+}
+
+
+#filterPanel{
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px); 
   width: 210px;
-  max-height: calc(100dvh - 160px); /* topbar + margini */
+
+  max-height: min(320px, calc(100dvh - 160px));
   overflow: auto;
 }
+
+#filterPanel[hidden]{
+  display:none;
+}
+
 
 
     .btnOrange{
@@ -411,7 +426,7 @@
             <span style="font-size:16px;">⛭</span> Filter
           </button>
 
-          <div class="panel filterPanel" id="filterPanel">
+          <div class="panel filterPanel" id="filterPanel" hidden>
             <div class="filterTitle">Filter</div>
 
             <div class="checkrow">
@@ -787,7 +802,13 @@ const world = screenToWorld(mouse.x, mouse.y);
   // Filter collapse
   const filterToggle = document.getElementById('filterToggle');
   const filterPanel = document.getElementById('filterPanel');
-  let filterOpen = true;
+let filterOpen = false;
+
+filterToggle.addEventListener('click', ()=>{
+  filterOpen = !filterOpen;
+  filterPanel.hidden = !filterOpen;
+});
+
 
   filterToggle.addEventListener('click', ()=>{
     filterOpen = !filterOpen;
