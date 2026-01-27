@@ -154,15 +154,27 @@
     }
 
 .topInfo{
+  z-index: 50;
   top: calc(12px + env(safe-area-inset-top) + var(--vv-top, 0px));
   right: calc(12px + env(safe-area-inset-right));
 }
 
 
+
 .filterWrap{
+  position: fixed;
   left: calc(12px + env(safe-area-inset-left));
-  bottom: calc(12px + env(safe-area-inset-bottom) + var(--vv-bottom, 0px) + 12px);
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 50;
 }
+
+
+.filterPanel{
+  width: 210px;
+  max-height: calc(100dvh - 160px); /* topbar + margini */
+  overflow: auto;
+}
+
 
     .btnOrange{
       background: var(--orange);
