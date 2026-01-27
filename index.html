@@ -22,28 +22,26 @@
       background: var(--bg);
       color: var(--text);
       overflow:hidden;
+      overscroll-behavior: none;
     }
-	body { overscroll-behavior: none; }
-.mapStage { overscroll-behavior: none; }
-
+    .mapStage { overscroll-behavior: none; }
 
     /* App shell */
-.app{
-  height: var(--appH, 100dvh);
-  display:flex;
-  flex-direction:column;
-}
+    .app{
+      height: var(--appH, 100dvh);
+      display:flex;
+      flex-direction:column;
+    }
 
-
-.topbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  padding: calc(10px + env(safe-area-inset-top)) 12px 10px 12px;
-  border-bottom: var(--border);
-  background:#fff;
-}
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: calc(10px + env(safe-area-inset-top)) 12px 10px 12px;
+      border-bottom: var(--border);
+      background:#fff;
+    }
 
     .title{
       font-weight:800;
@@ -123,23 +121,23 @@
     }
 
     /* this element gets transformed */
-.mapInner{
-  position:absolute;
-  left:0; top:0;
-  width:2048px;
-  height:1390px;
-  transform-origin: 0 0;
-  will-change: transform;
-}
+    .mapInner{
+      position:absolute;
+      left:0; top:0;
+      width:2048px;
+      height:1390px;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
 
-.mapImage{
-  display:block;
-  width:100%;
-  height:100%;
-  user-select:none;
-  -webkit-user-drag:none;
-  pointer-events:none;
-}
+    .mapImage{
+      display:block;
+      width:100%;
+      height:100%;
+      user-select:none;
+      -webkit-user-drag:none;
+      pointer-events:none;
+    }
 
     /* Panels */
     .panel{
@@ -153,44 +151,37 @@
       -webkit-backdrop-filter: blur(6px);
     }
 
-.topInfo{
-  z-index: 50;
-  top: calc(12px + env(safe-area-inset-top) + var(--vv-top, 0px));
-  right: calc(12px + env(safe-area-inset-right));
-}
+    .topInfo{
+      z-index: 50;
+      top: calc(12px + env(safe-area-inset-top) + var(--vv-top, 0px));
+      right: calc(12px + env(safe-area-inset-right));
+    }
 
+    /* Filter overlay (fixed, not clipped) */
+    .filterWrap{
+      position: fixed;
+      left: calc(12px + env(safe-area-inset-left));
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      z-index: 60;
 
+      display: inline-block;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      padding:0;
+    }
 
+    /* Panel opens ABOVE the button */
+    #filterPanel{
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + 8px);
+      width: 210px;
+      max-height: min(320px, calc(100dvh - 160px));
+      overflow: auto;
+    }
 
-.filterWrap{
-  position: fixed;
-  left: calc(12px + env(safe-area-inset-left));
-  bottom: calc(12px + env(safe-area-inset-bottom));
-  z-index: 60;
-}
-
-
-.filterWrap{ 
-  display: inline-block;
-}
-
-
-#filterPanel{
-  position: absolute;
-  left: 0;
-  bottom: calc(100% + 8px);
-}
-
-
-  max-height: min(320px, calc(100dvh - 160px));
-  overflow: auto;
-}
-
-#filterPanel[hidden]{
-  display:none;
-}
-
-
+    #filterPanel[hidden]{ display:none; }
 
     .btnOrange{
       background: var(--orange);
@@ -212,7 +203,6 @@
     }
 
     .filterPanel{
-      width: 210px;
       font-size:13px;
     }
     .filterTitle{
@@ -257,7 +247,6 @@
       align-items:center;
       justify-content:center;
       cursor:pointer;
-      /* Hit area is big, visible pin is centered */
     }
     .pin{
       width:26px;height:26px;
@@ -375,44 +364,37 @@
       flex-wrap:wrap;
       gap:10px;
     }
-    .btnLink{
-      text-decoration:none;
-    }
+    .btnLink{ text-decoration:none; }
 
-    /* Make it feel more app-like on iPhone */
-    .safeBottom{
-      padding-bottom: env(safe-area-inset-bottom);
+    /* Picker marker */
+    .pickMarker{
+      position:absolute;
+      left:0; top:0;
+      width:14px; height:14px;
+      border-radius:50%;
+      background: rgba(255,0,0,0.85);
+      border:2px solid #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+      transform: translate(-50%, -50%);
+      pointer-events:none;
+      z-index: 5;
     }
-	
-	.pickMarker{
-  position:absolute;
-  left:0; top:0;
-  width:14px; height:14px;
-  border-radius:50%;
-  background: rgba(255,0,0,0.85);
-  border:2px solid #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
-  transform: translate(-50%, -50%);
-  pointer-events:none;
-  z-index: 5;
-}
-.pickMarker::after{
-  content:"";
-  position:absolute;
-  left:50%; top:50%;
-  width:30px; height:2px;
-  background: rgba(255,255,255,0.9);
-  transform: translate(-50%,-50%);
-}
-.pickMarker::before{
-  content:"";
-  position:absolute;
-  left:50%; top:50%;
-  width:2px; height:30px;
-  background: rgba(255,255,255,0.9);
-  transform: translate(-50%,-50%);
-}
-
+    .pickMarker::after{
+      content:"";
+      position:absolute;
+      left:50%; top:50%;
+      width:30px; height:2px;
+      background: rgba(255,255,255,0.9);
+      transform: translate(-50%,-50%);
+    }
+    .pickMarker::before{
+      content:"";
+      position:absolute;
+      left:50%; top:50%;
+      width:2px; height:30px;
+      background: rgba(255,255,255,0.9);
+      transform: translate(-50%,-50%);
+    }
   </style>
 </head>
 <body>
@@ -425,7 +407,7 @@
     </div>
   </div>
 
-<div class="app">
+  <div class="app">
     <div class="topbar">
       <div class="title" id="pageTitle">interaktive-karte</div>
       <div class="tabs">
@@ -452,15 +434,14 @@
         </div>
 
         <!-- Filter -->
-        <div class="filterWrap panel" id="filterWrap" style="background:transparent; border:none; box-shadow:none; padding:0;">
+        <div class="filterWrap panel" id="filterWrap">
           <button class="btnOrange small" id="filterToggle">
             <span style="font-size:16px;">⛭</span> Filter
           </button>
-		  
-		  <button class="btnOrange small" id="pickToggle" style="margin-top:8px; opacity:0.6;">
-  📍 Pick
-</button>
 
+          <button class="btnOrange small" id="pickToggle" style="margin-top:8px; opacity:0.6;">
+            📍 Pick
+          </button>
 
           <div class="panel filterPanel" id="filterPanel" hidden>
             <div class="filterTitle">Filter</div>
@@ -511,7 +492,6 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
 <script>
   // ---------- Helpers ----------
   function weserv(url){
-    // remove scheme and feed to weserv
     const u = url.replace(/^https?:\/\//,'');
     return 'https://images.weserv.nl/?url=' + encodeURIComponent(u);
   }
@@ -521,17 +501,15 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
   }
 
   // ---------- Data ----------
+  // Base su cui incolli i valori "BASE 2048x1390"
+  const COORD_BASE_W = 2048;
+  const COORD_BASE_H = 1390;
 
+  // Dimensione reale immagine (si aggiorna a load)
+  let mapBaseW = COORD_BASE_W;
+  let mapBaseH = COORD_BASE_H;
 
-const COORD_BASE_W = 2048;
-const COORD_BASE_H = 1390;
-
-
-let mapBaseW = COORD_BASE_W;
-let mapBaseH = COORD_BASE_H;
-
-
-  const MAP_URL = weserv('https://tripsdrill.de/fileadmin/Erlebnispark/Parkplan_Erlebnispark/2024_Website_Parkplan_mit_Legende.jpg');
+  const MAP_URL  = weserv('https://tripsdrill.de/fileadmin/Erlebnispark/Parkplan_Erlebnispark/2024_Website_Parkplan_mit_Legende.jpg');
   const LOGO_URL = weserv('https://tripsdrill.de/fileadmin/Erlebnispark/Logos/_Tripsdrill_Claimgruen_frei.png');
 
   const attractions = [
@@ -540,8 +518,7 @@ let mapBaseH = COORD_BASE_H;
       id:'karacho',
       number:90,
       title:'Karacho',
-      xN: 0.771081,
-yN: 0.110622,
+      x:805, y:165, // <- prendi il punto preciso col picker e aggiornalo
       hitRadius:60,
       description:'Wie beim Start einer Rakete – mit unserer Katapult-Achterbahn in nur 1,6 Sekunden auf 100 km/h.',
       pageUrl:'https://tripsdrill.de/de/erlebnispark/attraktion/karacho',
@@ -552,7 +529,7 @@ yN: 0.110622,
       id:'mammut',
       number:101,
       title:'Mammut',
-      x:1579, y: 154,
+      x:1579, y:154, // <- dal tuo pick (BASE 2048x1390)
       hitRadius:60,
       description:'Brettern Sie mit über 80 Sachen mit unserer Holzachterbahn durch die riesige Sägemühle.',
       pageUrl:'https://tripsdrill.de/de/erlebnispark/attraktion/mammut',
@@ -563,7 +540,7 @@ yN: 0.110622,
       id:'halsueberkopf',
       number:21,
       title:'Hals-Über-Kopf',
-      x:125, y:535,
+      x:125, y:535, // <- anche questo: pickalo per precisione
       hitRadius:60,
       description:'„Hals-über-Kopf“ in ein waghalsiges Achterbahn-Abenteuer.',
       pageUrl:'https://tripsdrill.de/de/erlebnispark/attraktion/hals-ueber-kopf',
@@ -630,53 +607,24 @@ yN: 0.110622,
 
   // ---------- Map init ----------
   const mapImg = document.getElementById('mapImg');
-  mapImg.src = MAP_URL;
-  
-mapImg.addEventListener('load', () => {
-  console.log('MAP LOADED', mapImg.naturalWidth, mapImg.naturalHeight);
-  fitInitial();
-  applyTransform();
-  renderPins();
-});
-
   const mapStage = document.getElementById('mapStage');
   const mapInner = document.getElementById('mapInner');
-  
-  
-  mapImg.addEventListener('load', () => {
-  console.log('MAP LOADED', mapImg.naturalWidth, mapImg.naturalHeight);
 
-
-  mapBaseW = mapImg.naturalWidth;
-  mapBaseH = mapImg.naturalHeight;
-
-
-  mapInner.style.width  = mapBaseW + 'px';
-  mapInner.style.height = mapBaseH + 'px';
-
-  fitInitial();
-  applyTransform();
-  renderPins();
-});
-
+  mapImg.src = MAP_URL;
 
   // Transform state
-  let scale = 0.55;         // starting zoom
-  let tx = 20, ty = 20;     // starting offset
+  let scale = 0.55;
+  let tx = 20, ty = 20;
   let isPanning = false;
   let panStart = {x:0,y:0, tx0:0, ty0:0};
-
-  // Pinch state
-  let pinch = null; // {dist0, scale0, mid0:{x,y}}
+  let pinch = null;
 
   function applyTransform(){
     mapInner.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
   }
   applyTransform();
 
-  // Keep map centered-ish on load
   function fitInitial(){
-    // simple heuristic based on viewport
     const vw = mapStage.clientWidth;
     const vh = mapStage.clientHeight;
     const s = Math.min(vw / mapBaseW, vh / mapBaseH);
@@ -687,8 +635,20 @@ mapImg.addEventListener('load', () => {
   }
   window.addEventListener('resize', fitInitial);
 
-  // Pointer helpers
-  const pointers = new Map();
+  // SINGLE load handler (important!)
+  mapImg.addEventListener('load', () => {
+    console.log('MAP LOADED', mapImg.naturalWidth, mapImg.naturalHeight);
+
+    mapBaseW = mapImg.naturalWidth;
+    mapBaseH = mapImg.naturalHeight;
+
+    mapInner.style.width  = mapBaseW + 'px';
+    mapInner.style.height = mapBaseH + 'px';
+
+    fitInitial();
+    applyTransform();
+    renderPins();
+  });
 
   function distance(a,b){
     const dx = a.x-b.x, dy = a.y-b.y;
@@ -699,161 +659,153 @@ mapImg.addEventListener('load', () => {
   }
 
   function screenToWorld(sx, sy){
-    // world coords in map pixels (0..2048,0..1390)
     const x = (sx - tx) / scale;
     const y = (sy - ty) / scale;
     return {x,y};
   }
-  
+
   function clientToStage(clientX, clientY){
-  const r = mapStage.getBoundingClientRect();
-  return { x: clientX - r.left, y: clientY - r.top };
-}
-
-// ---------- Coordinate Picker (INCOLLATO QUI) ----------
-let picking = false;
-let pickStart = null;
-let pickMarker = null;
-
-const pickToggle = document.getElementById('pickToggle');
-
-pickToggle.addEventListener('click', ()=>{
-  picking = !picking;
-  pickToggle.style.opacity = picking ? '1' : '0.6';
-});
-
-// pointerdown: memorizza punto iniziale (per distinguere tap vs pan)
-mapStage.addEventListener('pointerdown', (e)=>{
-  if(!picking) return;
-  const p = clientToStage(e.clientX, e.clientY);
-  pickStart = p;
-});
-
-// pointerup: se non hai trascinato, allora è un “pick”
-mapStage.addEventListener('pointerup', (e)=>{
-  if(!picking) return;
-
-  const p = clientToStage(e.clientX, e.clientY);
-
-  if(pickStart){
-    const dx = p.x - pickStart.x;
-    const dy = p.y - pickStart.y;
-    const moved = Math.hypot(dx, dy);
-    pickStart = null;
-    if(moved > 6) return; // era un drag/pan
+    const r = mapStage.getBoundingClientRect();
+    return { x: clientX - r.left, y: clientY - r.top };
   }
 
-  // coordinate nel mondo della mappa (pixel reali immagine)
-  const w = screenToWorld(p.x, p.y);
+  // ---------- Coordinate Picker ----------
+  let picking = false;
+  let pickStart = null;
+  let pickMarker = null;
 
-  const x = Math.max(0, Math.min(mapBaseW, w.x));
-  const y = Math.max(0, Math.min(mapBaseH, w.y));
+  const pickToggle = document.getElementById('pickToggle');
+  pickToggle.addEventListener('click', ()=>{
+    picking = !picking;
+    pickToggle.style.opacity = picking ? '1' : '0.6';
+  });
 
-  // marker visivo dentro mapInner
-  if(!pickMarker){
-    pickMarker = document.createElement('div');
-    pickMarker.className = 'pickMarker';
-    mapInner.appendChild(pickMarker);
-  }
-  pickMarker.style.left = x + 'px';
-  pickMarker.style.top  = y + 'px';
+  mapStage.addEventListener('pointerdown', (e)=>{
+    if(!picking) return;
+    const p = clientToStage(e.clientX, e.clientY);
+    pickStart = p;
+  });
 
-  // normalizzate
-  const xN = x / mapBaseW;
-  const yN = y / mapBaseH;
+  mapStage.addEventListener('pointerup', (e)=>{
+    if(!picking) return;
 
-  // coordinate convertite nella base 2048x1390 (per incollarle nei tuoi dati attuali)
-  const xBase = Math.round(xN * COORD_BASE_W);
-  const yBase = Math.round(yN * COORD_BASE_H);
+    // se hai cliccato su un pin, non fare pick
+    if(e.target && e.target.closest && e.target.closest('.pinHit')) return;
 
-  console.log('--- PICK ---');
-  console.log('REAL px:', { x: Math.round(x), y: Math.round(y) });
-  console.log('NORM:', { xN: +xN.toFixed(6), yN: +yN.toFixed(6) });
-  console.log('BASE 2048x1390 (incolla nei dati):', { x: xBase, y: yBase });
-});
+    const p = clientToStage(e.clientX, e.clientY);
 
+    if(pickStart){
+      const dx = p.x - pickStart.x;
+      const dy = p.y - pickStart.y;
+      const moved = Math.hypot(dx, dy);
+      pickStart = null;
+      if(moved > 6) return; // era drag/pan
+    }
 
-mapStage.addEventListener('pointerdown', (e)=>{
-  mapStage.setPointerCapture(e.pointerId);
+    const w = screenToWorld(p.x, p.y);
 
-  const p = clientToStage(e.clientX, e.clientY);
-  pointers.set(e.pointerId, p);
+    const x = Math.max(0, Math.min(mapBaseW, w.x));
+    const y = Math.max(0, Math.min(mapBaseH, w.y));
 
-  if(pointers.size===1){
-    isPanning = true;
-    panStart = {x:p.x, y:p.y, tx0:tx, ty0:ty};
-  } else if(pointers.size===2){
-    isPanning = false;
-    const pts = Array.from(pointers.values());
-    pinch = { dist0: distance(pts[0], pts[1]), scale0: scale };
-  }
-});
+    if(!pickMarker){
+      pickMarker = document.createElement('div');
+      pickMarker.className = 'pickMarker';
+      mapInner.appendChild(pickMarker);
+    }
+    pickMarker.style.left = x + 'px';
+    pickMarker.style.top  = y + 'px';
 
+    const xN = x / mapBaseW;
+    const yN = y / mapBaseH;
 
+    const xBase = Math.round(xN * COORD_BASE_W);
+    const yBase = Math.round(yN * COORD_BASE_H);
 
-mapStage.addEventListener('pointermove', (e)=>{
-  if(!pointers.has(e.pointerId)) return;
+    console.log('--- PICK ---');
+    console.log('REAL px:', { x: Math.round(x), y: Math.round(y) });
+    console.log('NORM:', { xN: +xN.toFixed(6), yN: +yN.toFixed(6) });
+    console.log('BASE 2048x1390 (incolla nei dati):', { x: xBase, y: yBase });
+  });
 
-  const p = clientToStage(e.clientX, e.clientY);
-  pointers.set(e.pointerId, p);
+  // ---------- Pan + Pinch ----------
+  const pointers = new Map();
 
-  if(pointers.size===1 && isPanning && !pinch){
-    const dx = p.x - panStart.x;
-    const dy = p.y - panStart.y;
-    tx = panStart.tx0 + dx;
-    ty = panStart.ty0 + dy;
-    applyTransform();
-    return;
-  }
+  mapStage.addEventListener('pointerdown', (e)=>{
+    mapStage.setPointerCapture(e.pointerId);
 
-  if(pointers.size===2 && pinch){
-    const pts = Array.from(pointers.values());
-    const d = distance(pts[0], pts[1]);
-    const mid = midpoint(pts[0], pts[1]);
+    const p = clientToStage(e.clientX, e.clientY);
+    pointers.set(e.pointerId, p);
 
-    const factor = d / pinch.dist0;
-    const newScale = Math.max(0.35, Math.min(6.0, pinch.scale0 * factor));
+    if(pointers.size===1){
+      isPanning = true;
+      panStart = {x:p.x, y:p.y, tx0:tx, ty0:ty};
+    } else if(pointers.size===2){
+      isPanning = false;
+      const pts = Array.from(pointers.values());
+      pinch = { dist0: distance(pts[0], pts[1]), scale0: scale };
+    }
+  });
 
-    const before = screenToWorld(mid.x, mid.y);
+  mapStage.addEventListener('pointermove', (e)=>{
+    if(!pointers.has(e.pointerId)) return;
 
-    scale = newScale;
-    tx = mid.x - before.x * scale;
-    ty = mid.y - before.y * scale;
+    const p = clientToStage(e.clientX, e.clientY);
+    pointers.set(e.pointerId, p);
 
-    applyTransform();
-  }
-});
+    if(pointers.size===1 && isPanning && !pinch){
+      const dx = p.x - panStart.x;
+      const dy = p.y - panStart.y;
+      tx = panStart.tx0 + dx;
+      ty = panStart.ty0 + dy;
+      applyTransform();
+      return;
+    }
 
+    if(pointers.size===2 && pinch){
+      const pts = Array.from(pointers.values());
+      const d = distance(pts[0], pts[1]);
+      const mid = midpoint(pts[0], pts[1]);
 
+      const factor = d / pinch.dist0;
+      const newScale = Math.max(0.35, Math.min(6.0, pinch.scale0 * factor));
 
-mapStage.addEventListener('pointerup', (e)=>{
-  pointers.delete(e.pointerId);
+      const before = screenToWorld(mid.x, mid.y);
 
-  if (pointers.size < 2) pinch = null;
+      scale = newScale;
+      tx = mid.x - before.x * scale;
+      ty = mid.y - before.y * scale;
 
-  if (pointers.size === 1) {
-    const only = Array.from(pointers.values())[0];
-    isPanning = true;
-    panStart = { x: only.x, y: only.y, tx0: tx, ty0: ty };
-  }
+      applyTransform();
+    }
+  });
 
-  if (pointers.size === 0) isPanning = false;
-});
+  mapStage.addEventListener('pointerup', (e)=>{
+    pointers.delete(e.pointerId);
 
-mapStage.addEventListener('pointercancel', (e)=>{
-  pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinch = null;
 
-  if (pointers.size < 2) pinch = null;
+    if (pointers.size === 1) {
+      const only = Array.from(pointers.values())[0];
+      isPanning = true;
+      panStart = { x: only.x, y: only.y, tx0: tx, ty0: ty };
+    }
 
-  if (pointers.size === 1) {
-    const only = Array.from(pointers.values())[0];
-    isPanning = true;
-    panStart = { x: only.x, y: only.y, tx0: tx, ty0: ty };
-  }
+    if (pointers.size === 0) isPanning = false;
+  });
 
-  if (pointers.size === 0) isPanning = false;
-});
+  mapStage.addEventListener('pointercancel', (e)=>{
+    pointers.delete(e.pointerId);
 
+    if (pointers.size < 2) pinch = null;
+
+    if (pointers.size === 1) {
+      const only = Array.from(pointers.values())[0];
+      isPanning = true;
+      panStart = { x: only.x, y: only.y, tx0: tx, ty0: ty };
+    }
+
+    if (pointers.size === 0) isPanning = false;
+  });
 
   // Wheel zoom (desktop)
   mapStage.addEventListener('wheel', (e)=>{
@@ -862,8 +814,8 @@ mapStage.addEventListener('pointercancel', (e)=>{
     const delta = -e.deltaY;
     const factor = Math.exp(delta * zoomIntensity);
 
-const mouse = clientToStage(e.clientX, e.clientY);
-const world = screenToWorld(mouse.x, mouse.y);
+    const mouse = clientToStage(e.clientX, e.clientY);
+    const world = screenToWorld(mouse.x, mouse.y);
 
     const newScale = Math.max(0.35, Math.min(6.0, scale * factor));
     scale = newScale;
@@ -879,33 +831,33 @@ const world = screenToWorld(mouse.x, mouse.y);
   let showGastro = true;
 
   function renderPins(){
-    // remove existing
     mapInner.querySelectorAll('.pinHit').forEach(n=>n.remove());
 
     const all = [];
     if(showAttr) all.push(...attractions);
     if(showGastro) all.push(...gastro);
 
-for(const p of all){
-  const hit = document.createElement('div');
-  hit.className = 'pinHit';
-  const r = p.hitRadius;
+    for(const p of all){
+      const hit = document.createElement('div');
+      hit.className = 'pinHit';
+      const r = p.hitRadius;
 
-  hit.style.width = (r*2)+'px';
-  hit.style.height = (r*2)+'px';
+      hit.style.width = (r*2)+'px';
+      hit.style.height = (r*2)+'px';
 
+      // supporta xN/yN oppure x/y (base 2048x1390)
+      const px = (p.xN != null) ? (p.xN * mapBaseW) : (p.x / COORD_BASE_W) * mapBaseW;
+      const py = (p.yN != null) ? (p.yN * mapBaseH) : (p.y / COORD_BASE_H) * mapBaseH;
 
-  const px = (p.xN != null) ? (p.xN * mapBaseW) : (p.x / COORD_BASE_W) * mapBaseW;
-  const py = (p.yN != null) ? (p.yN * mapBaseH) : (p.y / COORD_BASE_H) * mapBaseH;
-
-  hit.style.left = (px - r) + 'px';
-  hit.style.top  = (py - r) + 'px';
+      hit.style.left = (px - r) + 'px';
+      hit.style.top  = (py - r) + 'px';
 
       const pin = document.createElement('div');
       pin.className = 'pin ' + (p.kind==='gastro' ? 'gastro' : 'attr');
       pin.textContent = p.number;
 
       hit.appendChild(pin);
+
       hit.addEventListener('click', (e)=>{
         e.stopPropagation();
         openModal(p);
@@ -915,7 +867,6 @@ for(const p of all){
     }
   }
 
-  // Custom checkbox UI
   const chkAttr = document.getElementById('chkAttr');
   const chkGastro = document.getElementById('chkGastro');
 
@@ -939,13 +890,12 @@ for(const p of all){
   // Filter collapse
   const filterToggle = document.getElementById('filterToggle');
   const filterPanel = document.getElementById('filterPanel');
-let filterOpen = false;
+  let filterOpen = false;
 
-filterToggle.addEventListener('click', ()=>{
-  filterOpen = !filterOpen;
-  filterPanel.hidden = !filterOpen;
-});
-
+  filterToggle.addEventListener('click', ()=>{
+    filterOpen = !filterOpen;
+    filterPanel.hidden = !filterOpen;
+  });
 
   // ---------- Modal ----------
   const modalBack = document.getElementById('modalBack');
@@ -1033,47 +983,40 @@ filterToggle.addEventListener('click', ()=>{
   }
   setInterval(tick, 1000);
   tick();
-  
-  
-function updateViewportVars(){
-  const vv = window.visualViewport;
 
-  // Altezza visibile reale (fix tagli su iPhone + desktop)
-  const h = vv ? vv.height : window.innerHeight;
-  document.documentElement.style.setProperty('--appH', h + 'px');
+  function updateViewportVars(){
+    const vv = window.visualViewport;
+    const h = vv ? vv.height : window.innerHeight;
+    document.documentElement.style.setProperty('--appH', h + 'px');
 
-  // Safe overlays (Safari toolbars ecc.)
-  if(!vv){
-    document.documentElement.style.setProperty('--vv-bottom', '0px');
-    document.documentElement.style.setProperty('--vv-top', '0px');
-    return;
+    if(!vv){
+      document.documentElement.style.setProperty('--vv-bottom', '0px');
+      document.documentElement.style.setProperty('--vv-top', '0px');
+      return;
+    }
+
+    const vvBottom = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop));
+    const vvTop = Math.max(0, vv.offsetTop);
+
+    document.documentElement.style.setProperty('--vv-bottom', vvBottom + 'px');
+    document.documentElement.style.setProperty('--vv-top', vvTop + 'px');
   }
 
-  const vvBottom = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop));
-  const vvTop = Math.max(0, vv.offsetTop);
-
-  document.documentElement.style.setProperty('--vv-bottom', vvBottom + 'px');
-  document.documentElement.style.setProperty('--vv-top', vvTop + 'px');
-}
-
-updateViewportVars();
-window.addEventListener('resize', updateViewportVars);
-if(window.visualViewport){
-  window.visualViewport.addEventListener('resize', updateViewportVars);
-  window.visualViewport.addEventListener('scroll', updateViewportVars);
-}
-
-
+  updateViewportVars();
+  window.addEventListener('resize', updateViewportVars);
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', updateViewportVars);
+    window.visualViewport.addEventListener('scroll', updateViewportVars);
+  }
 
   // ---------- Boot ----------
   renderPins();
   renderEvents();
 
-setTimeout(()=>{
-  splash.style.display='none';
-  // fitInitial(); 
-}, 5000);
-
+  setTimeout(()=>{
+    splash.style.display='none';
+    // fitInitial(); // lo facciamo a load immagine
+  }, 5000);
 </script>
 </body>
 </html>
