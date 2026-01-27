@@ -383,6 +383,36 @@
     .safeBottom{
       padding-bottom: env(safe-area-inset-bottom);
     }
+	
+	.pickMarker{
+  position:absolute;
+  left:0; top:0;
+  width:14px; height:14px;
+  border-radius:50%;
+  background: rgba(255,0,0,0.85);
+  border:2px solid #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+  transform: translate(-50%, -50%);
+  pointer-events:none;
+  z-index: 5;
+}
+.pickMarker::after{
+  content:"";
+  position:absolute;
+  left:50%; top:50%;
+  width:30px; height:2px;
+  background: rgba(255,255,255,0.9);
+  transform: translate(-50%,-50%);
+}
+.pickMarker::before{
+  content:"";
+  position:absolute;
+  left:50%; top:50%;
+  width:2px; height:30px;
+  background: rgba(255,255,255,0.9);
+  transform: translate(-50%,-50%);
+}
+
   </style>
 </head>
 <body>
@@ -426,6 +456,11 @@
           <button class="btnOrange small" id="filterToggle">
             <span style="font-size:16px;">⛭</span> Filter
           </button>
+		  
+		  <button class="btnOrange small" id="pickToggle" style="margin-top:8px; opacity:0.6;">
+  📍 Pick
+</button>
+
 
           <div class="panel filterPanel" id="filterPanel" hidden>
             <div class="filterTitle">Filter</div>
@@ -673,6 +708,68 @@ mapImg.addEventListener('load', () => {
   const r = mapStage.getBoundingClientRect();
   return { x: clientX - r.left, y: clientY - r.top };
 }
+
+// ---------- Coordinate Picker (INCOLLATO QUI) ----------
+let picking = false;
+let pickStart = null;
+let pickMarker = null;
+
+const pickToggle = document.getElementById('pickToggle');
+
+pickToggle.addEventListener('click', ()=>{
+  picking = !picking;
+  pickToggle.style.opacity = picking ? '1' : '0.6';
+});
+
+// pointerdown: memorizza punto iniziale (per distinguere tap vs pan)
+mapStage.addEventListener('pointerdown', (e)=>{
+  if(!picking) return;
+  const p = clientToStage(e.clientX, e.clientY);
+  pickStart = p;
+});
+
+// pointerup: se non hai trascinato, allora è un “pick”
+mapStage.addEventListener('pointerup', (e)=>{
+  if(!picking) return;
+
+  const p = clientToStage(e.clientX, e.clientY);
+
+  if(pickStart){
+    const dx = p.x - pickStart.x;
+    const dy = p.y - pickStart.y;
+    const moved = Math.hypot(dx, dy);
+    pickStart = null;
+    if(moved > 6) return; // era un drag/pan
+  }
+
+  // coordinate nel mondo della mappa (pixel reali immagine)
+  const w = screenToWorld(p.x, p.y);
+
+  const x = Math.max(0, Math.min(mapBaseW, w.x));
+  const y = Math.max(0, Math.min(mapBaseH, w.y));
+
+  // marker visivo dentro mapInner
+  if(!pickMarker){
+    pickMarker = document.createElement('div');
+    pickMarker.className = 'pickMarker';
+    mapInner.appendChild(pickMarker);
+  }
+  pickMarker.style.left = x + 'px';
+  pickMarker.style.top  = y + 'px';
+
+  // normalizzate
+  const xN = x / mapBaseW;
+  const yN = y / mapBaseH;
+
+  // coordinate convertite nella base 2048x1390 (per incollarle nei tuoi dati attuali)
+  const xBase = Math.round(xN * COORD_BASE_W);
+  const yBase = Math.round(yN * COORD_BASE_H);
+
+  console.log('--- PICK ---');
+  console.log('REAL px:', { x: Math.round(x), y: Math.round(y) });
+  console.log('NORM:', { xN: +xN.toFixed(6), yN: +yN.toFixed(6) });
+  console.log('BASE 2048x1390 (incolla nei dati):', { x: xBase, y: yBase });
+});
 
 
 mapStage.addEventListener('pointerdown', (e)=>{
@@ -977,3 +1074,4 @@ setTimeout(()=>{
 </script>
 </body>
 </html>
+
