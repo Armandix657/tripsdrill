@@ -540,7 +540,8 @@ let mapBaseH = COORD_BASE_H;
       id:'karacho',
       number:90,
       title:'Karacho',
-      x:805, y:165,
+      xN: 0.771081,
+yN: 0.110622,
       hitRadius:60,
       description:'Wie beim Start einer Rakete – mit unserer Katapult-Achterbahn in nur 1,6 Sekunden auf 100 km/h.',
       pageUrl:'https://tripsdrill.de/de/erlebnispark/attraktion/karacho',
@@ -551,7 +552,7 @@ let mapBaseH = COORD_BASE_H;
       id:'mammut',
       number:101,
       title:'Mammut',
-      x:970, y:120,
+      x:1579, y: 154,
       hitRadius:60,
       description:'Brettern Sie mit über 80 Sachen mit unserer Holzachterbahn durch die riesige Sägemühle.',
       pageUrl:'https://tripsdrill.de/de/erlebnispark/attraktion/mammut',
@@ -885,18 +886,20 @@ const world = screenToWorld(mouse.x, mouse.y);
     if(showAttr) all.push(...attractions);
     if(showGastro) all.push(...gastro);
 
-    for(const p of all){
-      const hit = document.createElement('div');
-      hit.className = 'pinHit';
-      const r = p.hitRadius;
-      hit.style.width = (r*2)+'px';
-      hit.style.height = (r*2)+'px';
-const px = (p.x / COORD_BASE_W) * mapBaseW;
-const py = (p.y / COORD_BASE_H) * mapBaseH;
+for(const p of all){
+  const hit = document.createElement('div');
+  hit.className = 'pinHit';
+  const r = p.hitRadius;
 
-hit.style.left = (px - r) + 'px';
-hit.style.top  = (py - r) + 'px';
+  hit.style.width = (r*2)+'px';
+  hit.style.height = (r*2)+'px';
 
+
+  const px = (p.xN != null) ? (p.xN * mapBaseW) : (p.x / COORD_BASE_W) * mapBaseW;
+  const py = (p.yN != null) ? (p.yN * mapBaseH) : (p.y / COORD_BASE_H) * mapBaseH;
+
+  hit.style.left = (px - r) + 'px';
+  hit.style.top  = (py - r) + 'px';
 
       const pin = document.createElement('div');
       pin.className = 'pin ' + (p.kind==='gastro' ? 'gastro' : 'attr');
@@ -1074,4 +1077,3 @@ setTimeout(()=>{
 </script>
 </body>
 </html>
-
