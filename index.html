@@ -588,6 +588,13 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
   // ---------- Map init ----------
   const mapImg = document.getElementById('mapImg');
   mapImg.src = MAP_URL;
+  
+mapImg.addEventListener('load', () => {
+  console.log('MAP LOADED', mapImg.naturalWidth, mapImg.naturalHeight);
+  fitInitial();
+  applyTransform();
+  renderPins();
+});
 
   const mapStage = document.getElementById('mapStage');
   const mapInner = document.getElementById('mapInner');
@@ -936,7 +943,6 @@ if(window.visualViewport){
   // splash hide after 5s
   setTimeout(()=>{
     splash.style.display='none';
-    fitInitial();
   }, 5000);
 </script>
 </body>
