@@ -158,6 +158,37 @@
       top: calc(12px + env(safe-area-inset-top) + var(--vv-top, 0px));
       right: calc(12px + env(safe-area-inset-right));
     }
+	/* Top info: pulsante per nascondere/mostrare */
+.topInfo{
+  padding-top: 34px; /* spazio per il bottone */
+}
+
+.topInfoToggle{
+  position:absolute;
+  top:8px;
+  right:8px;
+  width:28px;
+  height:28px;
+  border-radius:10px;
+  border: var(--border);
+  background:#fff;
+  cursor:pointer;
+  font-weight:900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* quando collassata: nasconde solo il contenuto, resta il bottone */
+.topInfo.collapsed{
+  padding: 8px;      /* più compatta */
+  width: auto;
+}
+
+.topInfo.collapsed .topInfoBody{
+  display:none;
+}
+
 
     /* Filter overlay (fixed, not clipped) */
     .filterWrap{
@@ -431,11 +462,18 @@
         </div>
 
         <!-- Top info -->
-        <div class="panel topInfo" id="topInfo">
-          <div id="nowText" style="margin-bottom:8px; font-weight:800;"></div>
-          <div class="strong">Geschlossene Attraktionen:</div>
-          <div style="margin-top:2px;">• Volldampf</div>
-        </div>
+<div class="panel topInfo" id="topInfo">
+  <button class="topInfoToggle" id="topInfoToggle" aria-label="Info ein-/ausblenden" title="Info ein-/ausblenden">
+    👁
+  </button>
+
+  <div class="topInfoBody" id="topInfoBody">
+    <div id="nowText" style="margin-bottom:8px; font-weight:800;"></div>
+    <div class="strong">Geschlossene Attraktionen:</div>
+    <div style="margin-top:2px;">• Volldampf</div>
+  </div>
+</div>
+
 
         <!-- Filter -->
         <div class="filterWrap panel" id="filterWrap">
@@ -987,6 +1025,34 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
   }
   setInterval(tick, 1000);
   tick();
+setInterval(tick, 1000);
+tick();
+
+// ---------- TopInfo hide/show ----------
+const topInfo = document.getElementById('topInfo');
+const topInfoToggle = document.getElementById('topInfoToggle');
+
+function isMobile(){
+  return window.matchMedia && window.matchMedia('(max-width: 600px)').matches;
+}
+
+function setTopInfoCollapsed(collapsed){
+  topInfo.classList.toggle('collapsed', collapsed);
+  localStorage.setItem('topInfoCollapsed', collapsed ? '1' : '0');
+}
+
+topInfoToggle.addEventListener('click', ()=>{
+  const collapsed = !topInfo.classList.contains('collapsed');
+  setTopInfoCollapsed(collapsed);
+});
+
+(function initTopInfo(){
+  const saved = localStorage.getItem('topInfoCollapsed');
+  if(saved === '1') return setTopInfoCollapsed(true);
+  if(saved === '0') return setTopInfoCollapsed(false);
+  setTopInfoCollapsed(isMobile());
+})();
+
 
   function updateViewportVars(){
     const vv = window.visualViewport;
