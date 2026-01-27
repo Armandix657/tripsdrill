@@ -486,8 +486,15 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
   }
 
   // ---------- Data ----------
-  const mapBaseW = 2048;
-  const mapBaseH = 1390;
+
+
+const COORD_BASE_W = 2048;
+const COORD_BASE_H = 1390;
+
+
+let mapBaseW = COORD_BASE_W;
+let mapBaseH = COORD_BASE_H;
+
 
   const MAP_URL = weserv('https://tripsdrill.de/fileadmin/Erlebnispark/Parkplan_Erlebnispark/2024_Website_Parkplan_mit_Legende.jpg');
   const LOGO_URL = weserv('https://tripsdrill.de/fileadmin/Erlebnispark/Logos/_Tripsdrill_Claimgruen_frei.png');
@@ -598,6 +605,24 @@ mapImg.addEventListener('load', () => {
 
   const mapStage = document.getElementById('mapStage');
   const mapInner = document.getElementById('mapInner');
+  
+  
+  mapImg.addEventListener('load', () => {
+  console.log('MAP LOADED', mapImg.naturalWidth, mapImg.naturalHeight);
+
+
+  mapBaseW = mapImg.naturalWidth;
+  mapBaseH = mapImg.naturalHeight;
+
+
+  mapInner.style.width  = mapBaseW + 'px';
+  mapInner.style.height = mapBaseH + 'px';
+
+  fitInitial();
+  applyTransform();
+  renderPins();
+});
+
 
   // Transform state
   let scale = 0.55;         // starting zoom
@@ -769,8 +794,12 @@ const world = screenToWorld(mouse.x, mouse.y);
       const r = p.hitRadius;
       hit.style.width = (r*2)+'px';
       hit.style.height = (r*2)+'px';
-      hit.style.left = (p.x - r) + 'px';
-      hit.style.top  = (p.y - r) + 'px';
+const px = (p.x / COORD_BASE_W) * mapBaseW;
+const py = (p.y / COORD_BASE_H) * mapBaseH;
+
+hit.style.left = (px - r) + 'px';
+hit.style.top  = (py - r) + 'px';
+
 
       const pin = document.createElement('div');
       pin.className = 'pin ' + (p.kind==='gastro' ? 'gastro' : 'attr');
@@ -940,10 +969,11 @@ if(window.visualViewport){
   renderPins();
   renderEvents();
 
-  // splash hide after 5s
-  setTimeout(()=>{
-    splash.style.display='none';
-  }, 5000);
+setTimeout(()=>{
+  splash.style.display='none';
+  // fitInitial(); 
+}, 5000);
+
 </script>
 </body>
 </html>
