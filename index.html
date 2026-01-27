@@ -14,6 +14,8 @@
       --panel: rgba(255,255,255,0.92);
       --shadow: 0 6px 18px rgba(0,0,0,0.18);
       --border: 1px solid rgba(0,0,0,0.08);
+	  --pinSize: 52px;
+	  --pinFont: 20px;
     }
     *{ box-sizing:border-box; }
     body{
@@ -248,18 +250,20 @@
       justify-content:center;
       cursor:pointer;
     }
-    .pin{
-      width:26px;height:26px;
-      border-radius:50%;
-      border:2px solid #fff;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:900;
-      font-size:12px;
-      user-select:none;
-    }
+.pin{
+  width: var(--pinSize);
+  height: var(--pinSize);
+  border-radius:50%;
+  border:2px solid #fff;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size: var(--pinFont);
+  user-select:none;
+}
+
     .pin.attr{ background:#ffd54f; color:#1565c0; }
     .pin.gastro{ background:#ff8f00; color:#ffeb3b; }
 
@@ -518,7 +522,7 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
       id:'karacho',
       number:90,
       title:'Karacho',
-      x:805, y:165, // <- prendi il punto preciso col picker e aggiornalo
+      x:1308, y: 214,
       hitRadius:60,
       description:'Wie beim Start einer Rakete – mit unserer Katapult-Achterbahn in nur 1,6 Sekunden auf 100 km/h.',
       pageUrl:'https://tripsdrill.de/de/erlebnispark/attraktion/karacho',
@@ -529,7 +533,7 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
       id:'mammut',
       number:101,
       title:'Mammut',
-      x:1579, y:154, // <- dal tuo pick (BASE 2048x1390)
+      x:1579, y:154, 
       hitRadius:60,
       description:'Brettern Sie mit über 80 Sachen mit unserer Holzachterbahn durch die riesige Sägemühle.',
       pageUrl:'https://tripsdrill.de/de/erlebnispark/attraktion/mammut',
@@ -540,7 +544,7 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
       id:'halsueberkopf',
       number:21,
       title:'Hals-Über-Kopf',
-      x:125, y:535, // <- anche questo: pickalo per precisione
+      x:202, y:666,
       hitRadius:60,
       description:'„Hals-über-Kopf“ in ein waghalsiges Achterbahn-Abenteuer.',
       pageUrl:'https://tripsdrill.de/de/erlebnispark/attraktion/hals-ueber-kopf',
@@ -554,7 +558,7 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
       id:'altweibermuehle',
       number:37,
       title:'Gasthaus zur Altweibermühle',
-      x:310, y:293,
+      x:500, y:361,
       hitRadius:60,
       description:'Vom Frühstück, über Mittagessen, Kaffee und Kuchen, Eisspezialitäten sowie Abendessen lässt das Angebot keine Wünsche offen.',
       pageUrl:'https://tripsdrill.de/de/erlebnispark/gastro/gasthaus-zur-altweibermuehle',
