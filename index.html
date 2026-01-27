@@ -178,8 +178,9 @@
 #filterPanel{
   position: absolute;
   left: 0;
-  bottom: calc(100% + 8px); 
-  width: 210px;
+  bottom: calc(100% + 8px);
+}
+
 
   max-height: min(320px, calc(100dvh - 160px));
   overflow: auto;
@@ -809,11 +810,6 @@ filterToggle.addEventListener('click', ()=>{
   filterPanel.hidden = !filterOpen;
 });
 
-
-  filterToggle.addEventListener('click', ()=>{
-    filterOpen = !filterOpen;
-    filterPanel.style.display = filterOpen ? 'block' : 'none';
-  });
 
   // ---------- Modal ----------
   const modalBack = document.getElementById('modalBack');
