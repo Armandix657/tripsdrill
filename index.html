@@ -48,33 +48,94 @@
       padding: calc(10px + env(safe-area-inset-top)) 12px 10px 12px;
       border-bottom: var(--border);
       background:#fff;
+      position: relative;
+      z-index: 80;
     }
 
     .title{
       font-weight:800;
       font-size:16px;
-      text-transform:none;
+      min-width: 0;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
 
-    .tabs{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
+    /* Hamburger menu (top right) */
+    .menuWrap{
+      position: relative;
+      flex: 0 0 auto;
     }
-    .tabbtn{
+
+    .menuBtn{
+      width:44px;
+      height:40px;
+      border-radius:12px;
       border: var(--border);
       background:#fff;
-      padding:8px 10px;
-      border-radius:12px;
-      font-weight:700;
       cursor:pointer;
-      white-space:nowrap;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
     }
-    .tabbtn.active{
+    .menuBtn:active{ transform: translateY(1px); }
+
+    .burger{
+      width:18px;
+      height:12px;
+      position: relative;
+    }
+    .burger span{
+      position:absolute;
+      left:0;
+      right:0;
+      height:2px;
+      background: var(--text);
+      border-radius:999px;
+    }
+    .burger span:nth-child(1){ top:0; }
+    .burger span:nth-child(2){ top:5px; }
+    .burger span:nth-child(3){ top:10px; }
+
+    .menuPanel{
+      position:absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 220px;
+      background: var(--panel);
+      border: var(--border);
+      border-radius:12px;
+      box-shadow: var(--shadow);
+      padding:8px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .menuPanel[hidden]{ display:none; }
+
+    .menuItem{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border: var(--border);
+      background:#fff;
+      padding:10px 10px;
+      border-radius:12px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .menuItem + .menuItem{ margin-top:8px; }
+    .menuItem.active{
       background: var(--orange);
-      color:#fff;
       border-color: transparent;
+      color:#fff;
+    }
+    .menuHint{
+      font-size:12px;
+      opacity:0.85;
+      font-weight:800;
     }
 
     .content{
@@ -127,11 +188,10 @@
       position:absolute;
       inset:0;
       overflow:hidden;
-      touch-action:none; /* important for pinch/pan */
+      touch-action:none;
       background:#f5f5f5;
     }
 
-    /* this element gets transformed */
     .mapInner{
       position:absolute;
       left:0; top:0;
@@ -166,7 +226,7 @@
       z-index: 50;
       top: calc(12px + env(safe-area-inset-top) + var(--vv-top, 0px));
       right: calc(12px + env(safe-area-inset-right));
-      padding-top: 34px; /* spazio per il bottone */
+      padding-top: 34px;
     }
 
     .topInfoToggle{
@@ -191,7 +251,7 @@
     }
     .topInfo.collapsed .topInfoBody{ display:none; }
 
-    /* Filter overlay (fixed, not clipped) */
+    /* Filter overlay */
     .filterWrap{
       position: fixed;
       left: calc(12px + env(safe-area-inset-left));
@@ -205,7 +265,6 @@
       padding:0;
     }
 
-    /* Panel opens ABOVE the button */
     #filterPanel{
       position: absolute;
       left: 0;
@@ -506,10 +565,29 @@
   <div class="app">
     <div class="topbar">
       <div class="title" id="pageTitle">Interaktive Karte</div>
-      <div class="tabs">
-        <button class="tabbtn active" id="tabMap">Interaktive Karte</button>
-        <button class="tabbtn" id="tabWartezeiten">Wartezeiten</button>
-        <button class="tabbtn" id="tabEvents">Events</button>
+
+      <!-- Hamburger menu -->
+      <div class="menuWrap" id="menuWrap">
+        <button class="menuBtn" id="menuToggle" aria-label="Menü öffnen" aria-haspopup="menu" aria-expanded="false" title="Menü">
+          <div class="burger" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+        </button>
+
+        <div class="menuPanel" id="menuPanel" hidden role="menu" aria-label="Navigation">
+          <button class="menuItem active" id="menuMap" role="menuitem">
+            <span>Interaktive Karte</span>
+            <span class="menuHint">Karte</span>
+          </button>
+          <button class="menuItem" id="menuWartezeiten" role="menuitem">
+            <span>Wartezeiten</span>
+            <span class="menuHint">Live</span>
+          </button>
+          <button class="menuItem" id="menuEvents" role="menuitem">
+            <span>Events</span>
+            <span class="menuHint">2026</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -519,7 +597,6 @@
         <div class="mapStage" id="mapStage">
           <div class="mapInner" id="mapInner">
             <img class="mapImage" id="mapImg" alt="Parkplan" />
-            <!-- Pins inserted here -->
           </div>
         </div>
 
@@ -565,7 +642,6 @@
           <h2>Wartezeiten</h2>
           <p>Aktuelle Wartezeiten (Demo – statische Werte)</p>
         </div>
-
         <div class="waitList" id="waitList"></div>
       </div>
 
@@ -659,7 +735,7 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
       id:'volldampf',
       number:22,
       title:'Volldampf',
-      x:285, y:705,              // Demo-Position (nahe Hals-Über-Kopf)
+      x:285, y:705, // demo-position
       hitRadius:60,
       description:'Bei der Familien-Achterbahn geht es nicht nur vorwärts, sondern auch rückwärts.',
       pageUrl:'https://tripsdrill.de/de/erlebnispark/attraktion/volldampf',
@@ -706,20 +782,16 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
     { id:'volldampf',      wait:null, state:'closed' }
   ];
 
-  // ---------- Tabs ----------
-  const tabMap = document.getElementById('tabMap');
-  const tabWartezeiten = document.getElementById('tabWartezeiten');
-  const tabEvents = document.getElementById('tabEvents');
-
+  // ---------- Views ----------
   const mapView = document.getElementById('mapView');
   const waitView = document.getElementById('waitView');
   const eventsView = document.getElementById('eventsView');
-
   const pageTitle = document.getElementById('pageTitle');
 
-  function setActiveTab(btn){
-    [tabMap, tabWartezeiten, tabEvents].forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
+  function setMenuActive(which){
+    document.getElementById('menuMap').classList.toggle('active', which==='map');
+    document.getElementById('menuWartezeiten').classList.toggle('active', which==='wartezeiten');
+    document.getElementById('menuEvents').classList.toggle('active', which==='events');
   }
 
   function showTab(which){
@@ -728,23 +800,60 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
     eventsView.classList.remove('active');
 
     if(which==='map'){
-      setActiveTab(tabMap);
       mapView.classList.add('active');
       pageTitle.textContent = 'Interaktive Karte';
     }else if(which==='wartezeiten'){
-      setActiveTab(tabWartezeiten);
       waitView.classList.add('active');
       pageTitle.textContent = 'Wartezeiten';
     }else{
-      setActiveTab(tabEvents);
       eventsView.classList.add('active');
       pageTitle.textContent = 'Events';
     }
+
+    setMenuActive(which);
   }
 
-  tabMap.addEventListener('click', ()=>showTab('map'));
-  tabWartezeiten.addEventListener('click', ()=>showTab('wartezeiten'));
-  tabEvents.addEventListener('click', ()=>showTab('events'));
+  // ---------- Hamburger menu logic ----------
+  const menuWrap = document.getElementById('menuWrap');
+  const menuToggle = document.getElementById('menuToggle');
+  const menuPanel = document.getElementById('menuPanel');
+
+  function openMenu(){
+    menuPanel.hidden = false;
+    menuToggle.setAttribute('aria-expanded', 'true');
+  }
+  function closeMenu(){
+    menuPanel.hidden = true;
+    menuToggle.setAttribute('aria-expanded', 'false');
+  }
+  function toggleMenu(){
+    if(menuPanel.hidden) openMenu();
+    else closeMenu();
+  }
+
+  menuToggle.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    toggleMenu();
+  });
+
+  document.addEventListener('click', (e)=>{
+    // click fuori chiude il menu
+    if(!menuWrap.contains(e.target)) closeMenu();
+  });
+
+  window.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape') closeMenu();
+  });
+
+  document.getElementById('menuMap').addEventListener('click', ()=>{
+    showTab('map'); closeMenu();
+  });
+  document.getElementById('menuWartezeiten').addEventListener('click', ()=>{
+    showTab('wartezeiten'); closeMenu();
+  });
+  document.getElementById('menuEvents').addEventListener('click', ()=>{
+    showTab('events'); closeMenu();
+  });
 
   // ---------- Splash ----------
   const splash = document.getElementById('splash');
@@ -755,10 +864,8 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
   const mapImg = document.getElementById('mapImg');
   const mapStage = document.getElementById('mapStage');
   const mapInner = document.getElementById('mapInner');
-
   mapImg.src = MAP_URL;
 
-  // Transform state
   let scale = 0.55;
   let tx = 20, ty = 20;
   let isPanning = false;
@@ -800,13 +907,11 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
   function midpoint(a,b){
     return {x:(a.x+b.x)/2, y:(a.y+b.y)/2};
   }
-
   function screenToWorld(sx, sy){
     const x = (sx - tx) / scale;
     const y = (sy - ty) / scale;
     return {x,y};
   }
-
   function clientToStage(clientX, clientY){
     const r = mapStage.getBoundingClientRect();
     return { x: clientX - r.left, y: clientY - r.top };
@@ -937,7 +1042,6 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
   mapStage.addEventListener('pointerup', endPointer);
   mapStage.addEventListener('pointercancel', endPointer);
 
-  // Wheel zoom (desktop)
   mapStage.addEventListener('wheel', (e)=>{
     e.preventDefault();
     const zoomIntensity = 0.0015;
@@ -1116,7 +1220,6 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
     if(w >= 45) return 'waitRed';
     if(w >= 30 && w <= 40) return 'waitYellow';
 
-    // für nicht explizit definierte Bereiche (26–29, 41–44)
     return 'waitYellow';
   }
 
@@ -1168,7 +1271,6 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
       btn.className = 'btnOrange';
       btn.textContent = 'Attraktion auf der Karte ansehen';
 
-      // Demo: wechselt zur Karte + öffnet Modal (funktioniert für alle, die in attractions drin sind)
       btn.addEventListener('click', ()=>{
         showTab('map');
         if(a) openModal(a);
@@ -1249,4 +1351,5 @@ Hier finden Sie eine Übersicht der Veranstaltungen im Erlebnispark für das Jah
 </script>
 </body>
 </html>
+
 
